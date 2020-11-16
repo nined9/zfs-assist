@@ -1,19 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.extendComponent = void 0;
+exports.searchServiceFile = void 0;
 /*
  * @Author: Do not edit
- * @Date: 2020-10-09 10:53:28
+ * @Date: 2020-11-16 15:54:25
  * @LastEditors: 黎加冬
- * @LastEditTime: 2020-10-27 15:39:42
+ * @LastEditTime: 2020-11-16 16:30:14
  * @Description:
- * @FilePath: \zfs-assist\src\functional\extend-component.ts
+ * @FilePath: \zfs-assist\src\functional\search-service-file.ts
  */
 const vscode = require("vscode");
 const path = require("path");
 const fs = require("fs");
 const utils_1 = require("../utils");
-function extendComponent(context) {
+function searchServiceFile(context) {
     var _a;
     const document = (_a = vscode.window.activeTextEditor) === null || _a === void 0 ? void 0 : _a.document;
     const fsPath = (document === null || document === void 0 ? void 0 : document.uri) ? document === null || document === void 0 ? void 0 : document.uri.fsPath : document === null || document === void 0 ? void 0 : document.fileName;
@@ -22,7 +22,6 @@ function extendComponent(context) {
         return;
     }
     const folderArr = fsPath.split(path.sep);
-    const extName = '.vue';
     let tmpArr = [...folderArr];
     let curProjectPath = '';
     let nodeModulesPath = '';
@@ -51,7 +50,7 @@ function extendComponent(context) {
         return;
     }
     let depPath = path.join(nodeModulesPath, ...libName.split('/'));
-    const files = utils_1.readFolder(depPath).filter(({ file }) => file.endsWith(extName));
+    const files = utils_1.readFolder(depPath);
     const items = files
         .map(({ file: label, path: description }) => ({ label, description }))
         .sort((a, b) => {
@@ -63,9 +62,9 @@ function extendComponent(context) {
         .showQuickPick(items, {
         canPickMany: false,
         ignoreFocusOut: false,
-        matchOnDescription: false,
+        matchOnDescription: true,
         matchOnDetail: true,
-        placeHolder: '请输入组件名',
+        placeHolder: '请输入文件名',
     })
         .then((item) => {
         if (!item) {
@@ -73,57 +72,12 @@ function extendComponent(context) {
             return;
         }
         const { label: fileName, description = '' } = item;
-        const relativePath = description.replace(path.join(nodeModulesPath, ...libName.split('/'), 'src'), '') || '';
-        const filePath = path.join(curProjectPath, 'src', 'service', relativePath);
-        const lastSepIndex = filePath.lastIndexOf(path.sep);
-        const folderPath = filePath.substring(0, lastSepIndex);
-        if (!fs.existsSync(folderPath)) {
-            try {
-                fs.mkdirSync(folderPath, { recursive: true });
-            }
-            catch (e) {
-                vscode.window.showErrorMessage(`创建${folderPath}文件夹失败~`);
-                return;
-            }
-        }
-        if (!fs.existsSync(filePath)) {
-            const noExtFileName = utils_1.getCamelCase(fileName.replace(extName, ''));
-            const fileContent = `<script>
-import ${noExtFileName} from '${libName}/src${relativePath
-                .split(path.sep)
-                .join('/')
-                .replace(extName, '')}';
-
-export default {
-  name: '${noExtFileName}',
-  extends: ${noExtFileName},
-  data() {
-    return {
-
-    };
-  },
-};
-</script>
-`;
-            try {
-                fs.writeFileSync(filePath, fileContent);
-            }
-            catch (e) {
-                vscode.window.showErrorMessage(`写入${filePath}文件失败~`);
-                return;
-            }
-        }
-        vscode.workspace.openTextDocument(filePath).then((doc) => {
-            vscode.window.showTextDocument(doc, vscode.ViewColumn.Active);
-            vscode.workspace.openTextDocument(description).then((descDoc) => {
-                vscode.window.showTextDocument(descDoc, vscode.ViewColumn.Beside, true);
-            }, (err) => {
-                vscode.window.showErrorMessage(`侧边打开${description}文件失败`);
-            });
+        vscode.workspace.openTextDocument(description).then((descDoc) => {
+            vscode.window.showTextDocument(descDoc, vscode.ViewColumn.Beside, true);
         }, (err) => {
-            vscode.window.showErrorMessage(`打开${filePath}文件失败`);
+            vscode.window.showErrorMessage(`侧边打开${description}文件失败`);
         });
     });
 }
-exports.extendComponent = extendComponent;
-//# sourceMappingURL=extend-component.js.map
+exports.searchServiceFile = searchServiceFile;
+//# sourceMappingURL=search-service-file.js.map

@@ -2,7 +2,7 @@
  * @Author: Do not edit
  * @Date: 2020-10-09 10:58:13
  * @LastEditors: 黎加冬
- * @LastEditTime: 2020-10-09 11:22:24
+ * @LastEditTime: 2020-11-16 16:27:02
  * @Description: 
  * @FilePath: \zfs-assist\src\utils\file.ts
  */
@@ -14,7 +14,7 @@ export type FileObj = {
   path: String;
 };
 
-export function readFolder(folderPath:fs.PathLike) {
+export function readFolder(folderPath:fs.PathLike, excludes: Array<string> = []) {
   
   if (!fs.existsSync(folderPath)) {
     return [];
@@ -24,6 +24,9 @@ export function readFolder(folderPath:fs.PathLike) {
 
   const files = fs.readdirSync(folderPath);
   files.forEach(file => {
+    if (excludes.includes(file)) {
+      return;
+    }
     const filePath = path.join(<string>folderPath, file);
     const state = fs.statSync(filePath);
     if (state.isFile()) {

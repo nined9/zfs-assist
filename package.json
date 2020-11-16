@@ -3,7 +3,7 @@
   "displayName": "zfs-assist",
   "description": "zfs-assist",
   "publisher": "nined",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.49.0"
   },
@@ -12,23 +12,22 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:zfs-assist.extendComponent"
+    "onCommand:zfs-assist.entryComponent"
   ],
   "icon": "images/icon.png",
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "zfs-assist.extendComponent",
+        "command": "zfs-assist.entryComponent",
         "title": "Extends Component"
       }
     ],
     "keybindings": [
       {
-        "command": "zfs-assist.extendComponent",
+        "command": "zfs-assist.entryComponent",
         "key": "ctrl+shift+f9",
-        "mac": "cmd+shift+f9",
-        "when": "editorTextFocus"
+        "mac": "cmd+shift+f9"
       }
     ]
   },
