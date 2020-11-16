@@ -1,9 +1,11 @@
 # zfs-assist
 
-## zfs-service
-
-使用
-
+## 唯一入口
 `ctrl+shift+f9`
 
-来继承指定组件类
+> 0: 继承组件
+
+> 1: 查找组件(service)文件
+
+> 2: 查找组件(ui)文件
+
