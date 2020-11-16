@@ -2,7 +2,7 @@
  * @Author: Do not edit
  * @Date: 2020-10-09 10:23:13
  * @LastEditors: 黎加冬
- * @LastEditTime: 2020-11-16 16:32:56
+ * @LastEditTime: 2020-11-16 22:40:28
  * @Description:
  * @FilePath: \zfs-assist\src\extension.ts
  */
@@ -10,8 +10,11 @@ import * as vscode from 'vscode'
 import { extendComponent } from './functional/extend-component'
 import { searchServiceFile } from './functional/search-service-file'
 import { searchUIFile } from './functional/search-ui-file'
+import { socketOpen } from './functional/socket-open'
 
 export function activate(context: vscode.ExtensionContext) {
+  let flagSocketOpen = false;
+
   let disposable = vscode.commands.registerCommand(
     'zfs-assist.entryComponent',
     function () {
@@ -20,6 +23,9 @@ export function activate(context: vscode.ExtensionContext) {
         <vscode.QuickPickItem>{ label: '1: 查找组件(service)', description: '查看zfs-service里的文件' },
         <vscode.QuickPickItem>{ label: '2: 查找组件(ui)', description: '查看zfs-ui里的文件' },
       ];
+      if (!flagSocketOpen) {
+        items.push(<vscode.QuickPickItem>{ label: '3: 开启F9特性', description: '在浏览器页面中按F9，快速在vscode对应项目中定位对应页面文件' })
+      }
 
       vscode.window
         .showQuickPick(items, {
@@ -45,8 +51,12 @@ export function activate(context: vscode.ExtensionContext) {
             case 1:
               searchServiceFile(context)
               break;
-              case 2:
+            case 2:
               searchUIFile(context)
+              break;
+            case 3:
+              socketOpen(context);
+              flagSocketOpen = true;
               break;
           }
         });
