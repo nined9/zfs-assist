@@ -5,7 +5,7 @@ exports.socketOpen = void 0;
  * @Author: Do not edit
  * @Date: 2020-11-16 18:22:25
  * @LastEditors: 黎加冬
- * @LastEditTime: 2020-11-16 22:31:18
+ * @LastEditTime: 2020-11-17 08:44:18
  * @Description:
  * @FilePath: \zfs-assist\src\functional\socket-open.ts
  */
@@ -44,7 +44,7 @@ function socketOpen(context) {
     }
     const pages = utils_1.readFolder(path.join(curProjectPath, 'src')).filter(({ file }) => file.endsWith(extName));
     let fileContent = fs.readFileSync(path.join(curProjectPath, 'src', 'main.js'), { encoding: 'utf-8' });
-    const startScript = "\nif (process.env.NODE_ENV === 'development') {";
+    const startScript = "/** 代码标记,切勿改动[zfs-assist] */";
     const idx = fileContent.indexOf(startScript);
     if (idx >= 0) {
         fileContent = fileContent.substring(0, idx);
@@ -55,6 +55,7 @@ function socketOpen(context) {
     let PORT = RegExp.$1 || Math.floor(Math.random() * 10000);
     PORT = Number(PORT) + 20000;
     fileContent += `${startScript}
+if (process.env.NODE_ENV === 'development') {
   // eslint-disable-next-line
   const axios = require('axios');
 
@@ -92,45 +93,50 @@ function socketOpen(context) {
             });
             request.on('end', () => {
                 // console.log(data.toString()) // 数据传输完，打印数据的内容
-                const reqData = JSON.parse(data.toString());
-                const { pathname, hash } = reqData;
-                const arr = pathname.split('/');
-                switch (arr[1]) {
-                    case 'boe':
-                        const boeType = hash.split('?')[0].split('/')[1];
-                        const page = pages.find(({ file, path }) => {
-                            if (file.indexOf(boeType) >= 0) {
-                                return true;
-                            }
-                            else if (file === 'index.vue' && path.indexOf(boeType) >= 0) {
-                                return true;
-                            }
-                        });
-                        const obj = {
-                            code: 0,
-                            msg: '',
-                            data: '',
-                        };
-                        if (page) {
-                            const { path: filePath } = page;
-                            vscode.workspace.openTextDocument(filePath).then((doc) => {
-                                vscode.window.showTextDocument(doc, vscode.ViewColumn.Active);
-                            }, (err) => {
-                                vscode.window.showErrorMessage(`打开${filePath}文件失败`);
+                try {
+                    const reqData = JSON.parse(data.toString());
+                    const { pathname, hash } = reqData;
+                    const arr = pathname.split('/');
+                    switch (arr[1]) {
+                        case 'boe':
+                            const boeType = hash.split('?')[0].split('/')[1];
+                            const page = pages.find(({ file, path }) => {
+                                if (file.indexOf(boeType) >= 0) {
+                                    return true;
+                                }
+                                else if (file === 'index.vue' && path.indexOf(boeType) >= 0) {
+                                    return true;
+                                }
                             });
-                            obj.msg = '打开成功';
-                        }
-                        else {
-                            obj.code = -1;
-                            obj.msg = '找不到页面文件';
-                        }
-                        // eslint-disable-next-line
-                        response.writeHead(200, { "Content-type": "text/plain;charset=utf-8" });
-                        response.write(JSON.stringify(obj));
-                        response.end();
-                        break;
-                    default:
-                        break;
+                            const obj = {
+                                code: 0,
+                                msg: '',
+                                data: '',
+                            };
+                            if (page) {
+                                const { path: filePath } = page;
+                                vscode.workspace.openTextDocument(filePath).then((doc) => {
+                                    vscode.window.showTextDocument(doc, vscode.ViewColumn.Active);
+                                }, (err) => {
+                                    vscode.window.showErrorMessage(`打开${filePath}文件失败`);
+                                });
+                                obj.msg = '打开成功';
+                            }
+                            else {
+                                obj.code = -1;
+                                obj.msg = '找不到页面文件';
+                            }
+                            // eslint-disable-next-line
+                            response.writeHead(200, { "Content-type": "text/plain;charset=utf-8" });
+                            response.write(JSON.stringify(obj));
+                            response.end();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                catch (e) {
+                    console.error(e);
                 }
             });
         }
