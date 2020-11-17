@@ -5,7 +5,7 @@ exports.socketOpen = void 0;
  * @Author: Do not edit
  * @Date: 2020-11-16 18:22:25
  * @LastEditors: 黎加冬
- * @LastEditTime: 2020-11-17 08:44:18
+ * @LastEditTime: 2020-11-17 08:52:32
  * @Description:
  * @FilePath: \zfs-assist\src\functional\socket-open.ts
  */
@@ -149,6 +149,7 @@ if (process.env.NODE_ENV === 'development') {
     });
     server.listen(PORT, function () {
         console.log('服务启动成功,端口:', PORT);
+        vscode.window.showInformationMessage('已开启F9特性');
     });
 }
 exports.socketOpen = socketOpen;
